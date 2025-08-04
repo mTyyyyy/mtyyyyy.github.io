@@ -1,9 +1,46 @@
+<!doctype html>
 <html>
-
-<body>
-  <h1>YOUR NAME</h1>
-  <p>Welcome to my website!</p>
-  <img src="https://content.codecademy.com/articles/github-pages-via-web-app/happy-ice-cream.gif" />
-</body>
-
+  <head>
+    <meta charset="UTF-8" />
+    <title>Countdown Timer</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        text-align: center;
+      }
+      #timer {
+        font-size: 2em;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Countdown Timer</h1>
+    <p>Introdu numarul de secunde si apasa Start.</p>
+    <input type="number" id="seconds" min="1" placeholder="Ex: 10" />
+    <button id="start">Start</button>
+    <div id="timer"></div>
+    <script>
+      let interval;
+      const timer = document.getElementById("timer");
+      document.getElementById("start").addEventListener("click", () => {
+        let time = parseInt(document.getElementById("seconds").value, 10);
+        if (isNaN(time) || time <= 0) {
+          timer.textContent = "Te rog introdu un numar valid.";
+          return;
+        }
+        clearInterval(interval);
+        timer.textContent = time;
+        interval = setInterval(() => {
+          time--;
+          if (time <= 0) {
+            timer.textContent = "Timpul a expirat!";
+            clearInterval(interval);
+          } else {
+            timer.textContent = time;
+          }
+        }, 1000);
+      });
+    </script>
+  </body>
 </html>

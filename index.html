@@ -1,46 +1,90 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Countdown Timer</title>
+    <title>Water Reminder</title>
     <style>
       body {
         font-family: sans-serif;
+        max-width: 500px;
+        margin: 40px auto;
         text-align: center;
       }
-      #timer {
-        font-size: 2em;
+      label {
+        display: block;
         margin-top: 20px;
+      }
+      input {
+        padding: 8px;
       }
     </style>
   </head>
   <body>
-    <h1>Countdown Timer</h1>
-    <p>Introdu numarul de secunde si apasa Start.</p>
-    <input type="number" id="seconds" min="1" placeholder="Ex: 10" />
-    <button id="start">Start</button>
-    <div id="timer"></div>
+    <h1>Water Reminder</h1>
+    <label>
+      Reminder interval (minutes)
+      <input type="number" id="interval" value="60" min="1" />
+    </label>
+    <button id="start">Start reminders</button>
+
+    <h2>Log water intake</h2>
+    <label>
+      Amount (ml)
+      <input type="number" id="amount" min="1" />
+    </label>
+    <button id="add">Add</button>
+    <p>Total drank today: <span id="total">0</span> ml</p>
+
     <script>
-      let interval;
-      const timer = document.getElementById("timer");
-      document.getElementById("start").addEventListener("click", () => {
-        let time = parseInt(document.getElementById("seconds").value, 10);
-        if (isNaN(time) || time <= 0) {
-          timer.textContent = "Te rog introdu un numar valid.";
+      const intervalInput = document.getElementById("interval");
+      const startBtn = document.getElementById("start");
+      const amountInput = document.getElementById("amount");
+      const addBtn = document.getElementById("add");
+      const totalEl = document.getElementById("total");
+
+      let reminderId;
+
+      let total = Number(localStorage.getItem("waterTotal")) || 0;
+      updateTotal();
+
+      startBtn.addEventListener("click", () => {
+        const mins = Number(intervalInput.value);
+        if (!mins || mins <= 0) {
+          alert("Please enter a valid interval.");
           return;
         }
-        clearInterval(interval);
-        timer.textContent = time;
-        interval = setInterval(() => {
-          time--;
-          if (time <= 0) {
-            timer.textContent = "Timpul a expirat!";
-            clearInterval(interval);
-          } else {
-            timer.textContent = time;
-          }
-        }, 1000);
+
+        if (Notification.permission !== "granted") {
+          Notification.requestPermission();
+        }
+        clearInterval(reminderId);
+        reminderId = setInterval(
+          () => {
+            if (Notification.permission === "granted") {
+              new Notification("Time to drink water!");
+            } else {
+              alert("Time to drink water!");
+            }
+          },
+          mins * 60 * 1000,
+        );
       });
+
+      addBtn.addEventListener("click", () => {
+        const amount = Number(amountInput.value);
+        if (!amount || amount <= 0) {
+          alert("Enter a valid amount.");
+          return;
+        }
+        total += amount;
+        localStorage.setItem("waterTotal", total);
+        updateTotal();
+        amountInput.value = "";
+      });
+
+      function updateTotal() {
+        totalEl.textContent = total;
+      }
     </script>
   </body>
 </html>
